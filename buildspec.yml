@@ -1,0 +1,33 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Login to ECR
+      - aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+      - echo Login to ECR Public
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+      - echo Get commit hash
+      - IMAGE_TAG=$(echo ${CODEBUILD_RESOLVED_SOURCE_VERSION} | cut -c 1-7)
+      - echo Commit hash is ${IMAGE_TAG}
+      - NGINX_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}/nginx
+build:
+  commands:
+    - echo Build started on `date`
+    - docker build -t nginx:latest 
+    - docker tag nginx:latest ${NGINX_IMAGE_URI}:${IMAGE_TAG}
+    - docker tag nginx:latest ${NGINX_IMAGE_URI}:${BUILD_ENV}
+post_build:
+  commands:
+    - echo Build completed on `date`
+    - echo Push nginx image to ECR Repository
+    - docker push ${NGINX_IMAGE_URI}:${IMAGE_TAG}
+    - docker push ${NGINX_IMAGE_URI}:${BUILD_ENV}
+    - echo Generate artifact files
+    - cp provision/${BUILD_ENV}/appspec.yml .
+    - cp provision/${BUILD_ENV}/taskdef.json .
+    - printf '[{"name":"nginx","imageUri":"%s"}]' ${NGINX_IMAGE_URI}:${IMAGE_TAG} > imagedefinitions.json
+  artifacts:
+    - imagedefinitions.json
+    - taskdef.json
+    - appspec.yml
