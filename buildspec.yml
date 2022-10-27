@@ -15,7 +15,7 @@ phases:
     commands:
       - echo Build started on `date`
       - docker build -t nginx:latest
-        --build-arg BUILD_ENV=${BUILD_ENV} -f docker/Dockerfile .
+        --build-arg BUILD_ENV=${BUILD_ENV} -f Dockerfile .
       - docker tag nginx:latest ${NGINX_IMAGE_URI}:${IMAGE_TAG}
       - docker tag nginx:latest ${NGINX_IMAGE_URI}:${BUILD_ENV}
   post_build:
