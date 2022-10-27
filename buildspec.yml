@@ -24,8 +24,6 @@ post_build:
     - docker push ${NGINX_IMAGE_URI}:${IMAGE_TAG}
     - docker push ${NGINX_IMAGE_URI}:${BUILD_ENV}
     - echo Generate artifact files
-    - cp provision/${BUILD_ENV}/appspec.yml .
-    - cp provision/${BUILD_ENV}/taskdef.json .
     - printf '[{"name":"nginx","imageUri":"%s"}]' ${NGINX_IMAGE_URI}:${IMAGE_TAG} > imagedefinitions.json
   artifacts:
     - imagedefinitions.json
