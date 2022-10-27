@@ -11,19 +11,19 @@ phases:
       - IMAGE_TAG=$(echo ${CODEBUILD_RESOLVED_SOURCE_VERSION} | cut -c 1-7)
       - echo Commit hash is ${IMAGE_TAG}
       - NGINX_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}/nginx
-build:
-  commands:
-    - echo Build started on `date`
-    - docker build -t nginx:latest 
-    - docker tag nginx:latest ${NGINX_IMAGE_URI}:${IMAGE_TAG}
-    - docker tag nginx:latest ${NGINX_IMAGE_URI}:${BUILD_ENV}
-post_build:
-  commands:
-    - echo Build completed on `date`
-    - echo Push nginx image to ECR Repository
-    - docker push ${NGINX_IMAGE_URI}:${IMAGE_TAG}
-    - docker push ${NGINX_IMAGE_URI}:${BUILD_ENV}
-    - echo Generate artifact files
-    - printf '[{"name":"nginx","imageUri":"%s"}]' ${NGINX_IMAGE_URI}:${IMAGE_TAG} > imagedefinitions.json
-  artifacts:
-    - imagedefinitions.json
+  build:
+    commands:
+      - echo Build started on `date`
+      - docker build -t nginx:latest 
+      - docker tag nginx:latest ${NGINX_IMAGE_URI}:${IMAGE_TAG}
+      - docker tag nginx:latest ${NGINX_IMAGE_URI}:${BUILD_ENV}
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Push nginx image to ECR Repository
+      - docker push ${NGINX_IMAGE_URI}:${IMAGE_TAG}
+      - docker push ${NGINX_IMAGE_URI}:${BUILD_ENV}
+      - echo Generate artifact files
+      - printf '[{"name":"nginx","imageUri":"%s"}]' ${NGINX_IMAGE_URI}:${IMAGE_TAG} > imagedefinitions.json
+    artifacts:
+      - imagedefinitions.json
