@@ -25,5 +25,6 @@ phases:
       - docker push ${NGINX_IMAGE_URI}:${BUILD_ENV}
       - echo Generate artifact files
       - printf '[{"name":"nginx","imageUri":"%s"}]' ${NGINX_IMAGE_URI}:${IMAGE_TAG} > imagedefinitions.json
-    artifacts:
-      - imagedefinitions.json
+artifacts:
+  files:
+    - imagedefinitions.json
